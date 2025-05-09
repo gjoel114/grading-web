@@ -1,8 +1,9 @@
 {
-  "name": "grading-app",
+  "name": "grading-web",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "homepage": "https://gjoel114.github.io/grading-web",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
