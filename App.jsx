@@ -28,26 +28,26 @@ export default function App() {
   };
 
   return (
-    <Router>
-      {loggedIn ? (
-        <>
-          <Navbar onLogout={handleLogout} />
-          <div className="container mt-4">
-            <Routes>
-              <Route path="/frontend" element={<FrontEndGradingForm />} />
-              <Route path="/mis" element={<MISGradingForm />} />
-              <Route path="/hci" element={<HCIGradingForm />} />
-              <Route path="/" element={<WelcomePage />} />
-            </Routes>
-          </div>
-        </>
-      ) : (
-        <Routes>
-          <Route path="*" element={<LoginPage onLogin={handleLogin} />} />
-        </Routes>
-      )}
-    </Router>
-  );
+  <Router basename="/grading-web">
+    {loggedIn ? (
+      <>
+        <Navbar onLogout={handleLogout} />
+        <div className="container mt-4">
+          <Routes>
+            <Route path="/frontend" element={<FrontEndGradingForm />} />
+            <Route path="/mis" element={<MISGradingForm />} />
+            <Route path="/hci" element={<HCIGradingForm />} />
+            <Route path="/" element={<WelcomePage />} />
+          </Routes>
+        </div>
+      </>
+    ) : (
+      <Routes>
+        <Route path="*" element={<LoginPage onLogin={handleLogin} />} />
+      </Routes>
+    )}
+  </Router>
+);
 }
 
 function WelcomePage() {
