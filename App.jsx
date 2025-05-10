@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./Navbar";
 import LoginPage from "./LoginPage";
 import FrontEndGradingForm from "./FrontEndGradingForm";
@@ -28,26 +28,26 @@ export default function App() {
   };
 
   return (
-  <Router basename="/grading-web">
-    {loggedIn ? (
-      <>
-        <Navbar onLogout={handleLogout} />
-        <div className="container mt-4">
-          <Routes>
-            <Route path="/frontend" element={<FrontEndGradingForm />} />
-            <Route path="/mis" element={<MISGradingForm />} />
-            <Route path="/hci" element={<HCIGradingForm />} />
-            <Route path="/" element={<WelcomePage />} />
-          </Routes>
-        </div>
-      </>
-    ) : (
-      <Routes>
-        <Route path="*" element={<LoginPage onLogin={handleLogin} />} />
-      </Routes>
-    )}
-  </Router>
-);
+    <>
+      {loggedIn ? (
+        <>
+          <Navbar onLogout={handleLogout} />
+          <div className="container mt-4">
+            <Routes>
+              <Route path="/frontend" element={<FrontEndGradingForm />} />
+              <Route path="/mis" element={<MISGradingForm />} />
+              <Route path="/hci" element={<HCIGradingForm />} />
+              <Route path="/" element={<WelcomePage />} />
+            </Routes>
+          </div>
+        </>
+      ) : (
+        <Routes>
+          <Route path="*" element={<LoginPage onLogin={handleLogin} />} />
+        </Routes>
+      )}
+    </>
+  );
 }
 
 function WelcomePage() {
