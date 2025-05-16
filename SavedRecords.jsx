@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+const courseKeys = [
+  "Front-End Project",
+  "HCI Innovation Project",
+  "MIS Student Innovation Project"
+];
+
 export default function SavedRecords() {
   const [records, setRecords] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
@@ -7,14 +13,20 @@ export default function SavedRecords() {
   const [editData, setEditData] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("gradingRecords");
-    if (stored) {
-      try {
-        setRecords(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse gradingRecords:", e);
+    const allRecords = [];
+    courseKeys.forEach((course) => {
+      const key = `gradingRecords_${course}`;
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          allRecords.push(...parsed);
+        } catch (e) {
+          console.error(`Failed to parse ${key}:`, e);
+        }
       }
-    }
+    });
+    setRecords(allRecords);
   }, []);
 
   const handleCheckboxChange = (index) => {
@@ -58,12 +70,13 @@ export default function SavedRecords() {
       alert("Please select at least one record to download.");
       return;
     }
-    if (selectedIndexes.length === 1) {
-      const r = records[selectedIndexes[0]];
+    const selectedRecords = selectedIndexes.map(i => records[i]);
+    if (selectedRecords.length === 1) {
+      const r = selectedRecords[0];
       const filename = `${r.student.name.replace(/\s+/g, "_")}_${r.student.id}.csv`;
       downloadCSV([r], filename);
     } else {
-      downloadCSV(selectedIndexes.map((i) => records[i]), "selected_grading_records.csv");
+      downloadCSV(selectedRecords, "selected_grading_records.csv");
     }
   };
 
@@ -72,12 +85,19 @@ export default function SavedRecords() {
       alert("Please select records to delete.");
       return;
     }
+
     const confirmed = window.confirm("Are you sure you want to delete the selected records?");
     if (!confirmed) return;
-    const remaining = records.filter((_, i) => !selectedIndexes.includes(i));
-    localStorage.setItem("gradingRecords", JSON.stringify(remaining));
-    setRecords(remaining);
+
+    const remainingRecords = records.filter((_, i) => !selectedIndexes.includes(i));
+    setRecords(remainingRecords);
     setSelectedIndexes([]);
+
+    // Save back to appropriate course tables
+    courseKeys.forEach((course) => {
+      const courseSpecific = remainingRecords.filter(r => r.courseName === course);
+      localStorage.setItem(`gradingRecords_${course}`, JSON.stringify(courseSpecific));
+    });
   };
 
   const openModal = (record, index) => {
@@ -113,15 +133,17 @@ export default function SavedRecords() {
     };
     updated[index] = updatedRecord;
     setRecords(updated);
-    localStorage.setItem("gradingRecords", JSON.stringify(updated));
     setModalRecord(null);
+
+    // Save to course-specific key
+    const courseGroup = updated.filter(r => r.courseName === updatedRecord.courseName);
+    localStorage.setItem(`gradingRecords_${updatedRecord.courseName}`, JSON.stringify(courseGroup));
   };
 
-  const groupedRecords = {
-    "Front-End Project": records.filter((r) => r.courseName === "Front-End Project"),
-    "MIS Student Innovation Project": records.filter((r) => r.courseName === "MIS Student Innovation Project"),
-    "HCI Innovation Project": records.filter((r) => r.courseName === "HCI Innovation Project"),
-  };
+  const groupedRecords = courseKeys.reduce((acc, course) => {
+    acc[course] = records.filter(r => r.courseName === course);
+    return acc;
+  }, {});
 
   return (
     <div className="container mt-4">
