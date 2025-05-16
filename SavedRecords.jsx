@@ -55,25 +55,18 @@ export default function SavedRecords() {
   };
 
   const downloadSelected = () => {
-  if (selectedIndexes.length === 0) {
-    alert("Please select at least one record to download.");
-    return;
-  }
-
-  // One record selected
-  if (selectedIndexes.length === 1) {
-    const r = records[selectedIndexes[0]];
-    const filename = `${r.student.name.replace(/\s+/g, "_")}_${r.student.id}.csv`;
-    downloadCSV([r], filename);
-  } else {
-    // Multiple records selected
-    downloadCSV(
-      selectedIndexes.map((i) => records[i]),
-      "selected_grading_records.csv"
-    );
-  }
-};
-
+    if (selectedIndexes.length === 0) {
+      alert("Please select at least one record to download.");
+      return;
+    }
+    if (selectedIndexes.length === 1) {
+      const r = records[selectedIndexes[0]];
+      const filename = `${r.student.name.replace(/\s+/g, "_")}_${r.student.id}.csv`;
+      downloadCSV([r], filename);
+    } else {
+      downloadCSV(selectedIndexes.map((i) => records[i]), "selected_grading_records.csv");
+    }
+  };
 
   const deleteSelected = () => {
     if (selectedIndexes.length === 0) {
@@ -82,7 +75,6 @@ export default function SavedRecords() {
     }
     const confirmed = window.confirm("Are you sure you want to delete the selected records?");
     if (!confirmed) return;
-
     const remaining = records.filter((_, i) => !selectedIndexes.includes(i));
     localStorage.setItem("gradingRecords", JSON.stringify(remaining));
     setRecords(remaining);
@@ -127,107 +119,118 @@ export default function SavedRecords() {
     setModalRecord(null);
   };
 
+  const groupedRecords = {
+    "Front-End Project": records.filter((r) => r.courseName === "Front-End Project"),
+    "MIS Student Innovation Project": records.filter((r) => r.courseName === "MIS Student Innovation Project"),
+    "HCI Innovation Project": records.filter((r) => r.courseName === "HCI Innovation Project"),
+  };
+
   return (
     <div className="container mt-4">
-      <h2>Saved Grading Records</h2>
-      {records.length === 0 ? (
-        <p>No records found.</p>
-      ) : (
-        <>
-          <div className="mb-3 d-flex flex-wrap gap-2">
-            <button className="btn btn-success" onClick={() => downloadCSV(records)}>
-              Download All as CSV
-            </button>
-            <button className="btn btn-primary" onClick={downloadSelected}>
-              Download Selected as CSV
-            </button>
-            <button className="btn btn-danger" onClick={deleteSelected}>
-              Delete Selected
-            </button>
-          </div>
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>
-                  <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
-                </th>
-                <th>Student Name</th>
-                <th>ID</th>
-                <th>Course</th>
-                <th>Total</th>
-                <th>Date</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((r, i) => (
-                <tr key={i}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedIndexes.includes(i)}
-                      onChange={() => handleCheckboxChange(i)}
-                    />
-                  </td>
-                  <td>{r.student.name}</td>
-                  <td>{r.student.id}</td>
-                  <td>{r.courseName}</td>
-                  <td>{r.total}</td>
-                  <td>{new Date(r.date).toLocaleString()}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-info" onClick={() => openModal(r, i)}>
-                      View / Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <h2 className="mb-4">Saved Grading Records</h2>
+      <div className="mb-3 d-flex flex-wrap gap-2">
+        <button className="btn btn-success" onClick={() => downloadCSV(records)}>Download All as CSV</button>
+        <button className="btn btn-primary" onClick={downloadSelected}>Download Selected as CSV</button>
+        <button className="btn btn-danger" onClick={deleteSelected}>Delete Selected</button>
+      </div>
 
-          {modalRecord && (
-            <div className="modal d-block" tabIndex="-1" role="dialog" onClick={() => setModalRecord(null)}>
-              <div className="modal-dialog" role="document" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Edit Grading Details</h5>
-                    <button type="button" className="btn-close" onClick={() => setModalRecord(null)}></button>
-                  </div>
-                  <div className="modal-body">
-                    <p><strong>Student:</strong> {modalRecord.student.name}</p>
-                    <p><strong>ID:</strong> {modalRecord.student.id}</p>
-                    <p><strong>Course:</strong> {modalRecord.courseName}</p>
-                    <hr />
-                    {Object.keys(editData.scores).map((category) => (
-                      <div key={category} className="mb-3">
-                        <label><strong>{category}</strong></label>
-                        <input
-                          type="number"
-                          className="form-control mb-1"
-                          value={editData.scores[category]}
-                          onChange={(e) => handleScoreChange(category, e.target.value)}
-                        />
-                        <textarea
-                          className="form-control"
-                          placeholder="Comment (optional)"
-                          value={editData.comments[category] || ""}
-                          onChange={(e) => handleCommentChange(category, e.target.value)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="modal-footer">
-                    <button className="btn btn-primary" onClick={handleSaveChanges}>
-                      Save Changes
-                    </button>
-                    <button className="btn btn-secondary" onClick={() => setModalRecord(null)}>
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
+      {Object.entries(groupedRecords).map(([course, group]) => (
+        <div className="mb-5" key={course}>
+          <h4>{course}</h4>
+          {group.length === 0 ? (
+            <p className="text-muted">No records found.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                    <th>Student Name</th>
+                    <th>ID</th>
+                    <th>Course</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group.map((r) => {
+                    const i = records.findIndex(
+                      (x) => x.student.id === r.student.id && x.courseName === r.courseName
+                    );
+                    return (
+                      <tr key={i}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedIndexes.includes(i)}
+                            onChange={() => handleCheckboxChange(i)}
+                          />
+                        </td>
+                        <td>{r.student.name}</td>
+                        <td>{r.student.id}</td>
+                        <td>{r.courseName}</td>
+                        <td>{r.total}</td>
+                        <td>{new Date(r.date).toLocaleString()}</td>
+                        <td>
+                          <button className="btn btn-sm btn-outline-info" onClick={() => openModal(r, i)}>
+                            View / Edit
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
-        </>
+        </div>
+      ))}
+
+      {modalRecord && (
+        <div className="modal d-block" tabIndex="-1" role="dialog" onClick={() => setModalRecord(null)}>
+          <div className="modal-dialog" role="document" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Grading Details</h5>
+                <button type="button" className="btn-close" onClick={() => setModalRecord(null)}></button>
+              </div>
+              <div className="modal-body">
+                <p><strong>Student:</strong> {modalRecord.student.name}</p>
+                <p><strong>ID:</strong> {modalRecord.student.id}</p>
+                <p><strong>Course:</strong> {modalRecord.courseName}</p>
+                <hr />
+                {Object.keys(editData.scores).map((category) => (
+                  <div key={category} className="mb-3">
+                    <label><strong>{category}</strong></label>
+                    <input
+                      type="number"
+                      className="form-control mb-1"
+                      value={editData.scores[category]}
+                      onChange={(e) => handleScoreChange(category, e.target.value)}
+                    />
+                    <textarea
+                      className="form-control"
+                      placeholder="Comment (optional)"
+                      value={editData.comments[category] || ""}
+                      onChange={(e) => handleCommentChange(category, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary" onClick={handleSaveChanges}>Save Changes</button>
+                <button className="btn btn-secondary" onClick={() => setModalRecord(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
