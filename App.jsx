@@ -5,6 +5,7 @@ import LoginPage from "./LoginPage";
 import FrontEndGradingForm from "./FrontEndGradingForm";
 import MISGradingForm from "./MISGradingForm";
 import HCIGradingForm from "./HCIGradingForm";
+import SavedRecords from "./SavedRecords";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="/frontend" element={<FrontEndGradingForm />} />
               <Route path="/mis" element={<MISGradingForm />} />
               <Route path="/hci" element={<HCIGradingForm />} />
+              <Route path="/saved-records" element={<SavedRecords />} />
               <Route path="/" element={<WelcomePage />} />
             </Routes>
           </div>
