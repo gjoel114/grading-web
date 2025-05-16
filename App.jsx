@@ -58,7 +58,7 @@ function WelcomePage() {
       <h2 className="mb-4">Welcome to the Course Grading System</h2>
       <p>Select a course from the navigation bar to start grading.</p>
       <img
-        src="https://img.icons8.com/color/96/grade.png"
+        src="/grading-picture.png"
         alt="grading"
         className="mt-3"
       />
