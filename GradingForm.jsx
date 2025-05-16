@@ -44,6 +44,19 @@ export default function GradingForm({ courseName, categories }) {
     };
 
     const existing = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
+
+    // Check for duplicate name in the same course (case-insensitive)
+    const isDuplicate = existing.some(
+      (r) =>
+        r.courseName === courseName &&
+        r.student.name.trim().toLowerCase() === student.name.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      alert(`The student "${student.name}" already has a record in "${courseName}". Duplicate not saved.`);
+      return;
+    }
+
     existing.push(record);
     localStorage.setItem("gradingRecords", JSON.stringify(existing));
 
