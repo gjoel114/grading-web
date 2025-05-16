@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -7,12 +6,17 @@ export default function Navbar({ onLogout }) {
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
       <div className="container">
         <Link className="navbar-brand" to="/">Course Grading</Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
+
         <div className="collapse navbar-collapse" id="navbarNav">
-          
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link" to="/frontend">Front-End</Link>
             </li>
@@ -22,14 +26,13 @@ export default function Navbar({ onLogout }) {
             <li className="nav-item">
               <Link className="nav-link" to="/hci">HCI</Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/saved-records">Saved Records</Link>
+            </li>
           </ul>
           <button className="btn btn-outline-light" onClick={onLogout}>Log Out</button>
         </div>
-        <Link className="nav-link" to="/saved-records">
-  Saved Records
-</Link>
       </div>
     </nav>
   );
 }
-//
