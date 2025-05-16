@@ -1,7 +1,7 @@
 import React from "react";
 
 const groupedStudentList = {
-  "Front End Dev": [
+  "Front-End Project": [
     "Aaron Benjamin Moran Garcia",
     "Gamolchat Wananiwet",
     "Tain Yan Tun",
@@ -18,7 +18,7 @@ const groupedStudentList = {
     "Ricardo Paul",
     "Samantha Jawjong"
   ],
-  "HCI Student": [
+  "HCI Innovation Project": [
     "Alleef Zettal Bin Ali",
     "Anisa Marshanda Soeun",
     "Ariunbayar Altanbaatar",
@@ -56,15 +56,15 @@ const groupedStudentList = {
     "Wai Phyo Aung",
     "William Tinashe Menze"
   ],
-  "MIS Student": [
+  "MIS Student Innovation Project": [
     "Andrew Philips Kaihatu",
     "Aaron Benjamin Moran Garcia",
     "Chen, Yishi",
-"Daniel Dal Sian Thang",
-"Mario Rezk Saadalla Rezk",
-"Phyoe Kyaw Zin",
-"Tain Yan Tun",
-"Wisa Emad Khamis Barour",
+    "Daniel Dal Sian Thang",
+    "Mario Rezk Saadalla Rezk",
+    "Phyoe Kyaw Zin",
+    "Tain Yan Tun",
+    "Wisa Emad Khamis Barour",
     "Columbus Brown",
     "Peeranat Kongsang",
     "Praweechai Thararuenroeng",
@@ -93,15 +93,29 @@ const groupedStudentList = {
 
 export default function StudentInfoForm({ student, setStudent }) {
   const handleSelectChange = (e) => {
-    setStudent({ ...student, name: e.target.value });
+    const name = e.target.value;
+    let matchedCourse = "";
+    let autoId = "";
+
+    // Determine course group and generate ID
+    for (const [course, names] of Object.entries(groupedStudentList)) {
+      const index = names.findIndex((n) => n === name);
+      if (index !== -1) {
+        matchedCourse = course;
+        autoId = `${course.split(" ")[0].toUpperCase()}${String(index + 1).padStart(3, "0")}`;
+        break;
+      }
+    }
+
+    setStudent({ name, id: autoId, courseFromList: matchedCourse });
   };
 
   const handleIdChange = (e) => {
-    setStudent({ ...student, id: e.target.value });
+    setStudent((prev) => ({ ...prev, id: e.target.value }));
   };
 
   const handleClear = () => {
-    setStudent({ name: "", id: "" });
+    setStudent({ name: "", id: "", courseFromList: "" });
   };
 
   return (
@@ -129,7 +143,7 @@ export default function StudentInfoForm({ student, setStudent }) {
           <input
             type="text"
             className="form-control mb-2"
-            placeholder="Enter Student ID"
+            placeholder="Auto-filled or type manually"
             value={student.id}
             onChange={handleIdChange}
             required
