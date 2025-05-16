@@ -55,13 +55,25 @@ export default function SavedRecords() {
   };
 
   const downloadSelected = () => {
-    const selected = selectedIndexes.map((i) => records[i]);
-    if (selected.length === 0) {
-      alert("Please select at least one record to download.");
-      return;
-    }
-    downloadCSV(selected, "selected_grading_records.csv");
-  };
+  if (selectedIndexes.length === 0) {
+    alert("Please select at least one record to download.");
+    return;
+  }
+
+  // One record selected
+  if (selectedIndexes.length === 1) {
+    const r = records[selectedIndexes[0]];
+    const filename = `${r.student.name.replace(/\s+/g, "_")}_${r.student.id}.csv`;
+    downloadCSV([r], filename);
+  } else {
+    // Multiple records selected
+    downloadCSV(
+      selectedIndexes.map((i) => records[i]),
+      "selected_grading_records.csv"
+    );
+  }
+};
+
 
   const deleteSelected = () => {
     if (selectedIndexes.length === 0) {
