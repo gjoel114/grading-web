@@ -58,10 +58,12 @@ function WelcomePage() {
       <h2 className="mb-4">Welcome to the Course Grading System</h2>
       <p>Select a course from the navigation bar to start grading.</p>
       <img
-        src="/grading-picture.png"
-        alt="grading"
-        className="mt-3"
-      />
+  src="/grading-picture.png"
+  alt="grading"
+  className="mt-3"
+  style={{ width: "250px" }}
+/>
+
     </div>
   );
 }
