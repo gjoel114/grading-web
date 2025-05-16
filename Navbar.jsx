@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -10,6 +11,7 @@ export default function Navbar({ onLogout }) {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
+          
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
               <Link className="nav-link" to="/frontend">Front-End</Link>
@@ -23,6 +25,9 @@ export default function Navbar({ onLogout }) {
           </ul>
           <button className="btn btn-outline-light" onClick={onLogout}>Log Out</button>
         </div>
+        <Link className="nav-link" to="/saved-records">
+  Saved Records
+</Link>
       </div>
     </nav>
   );
