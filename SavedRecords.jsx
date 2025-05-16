@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 export default function SavedRecords() {
   const [records, setRecords] = useState([]);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
   const [modalRecord, setModalRecord] = useState(null);
   const [editData, setEditData] = useState(null);
 
@@ -24,13 +23,13 @@ export default function SavedRecords() {
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedIndexes([]);
+  const handleSelectAllGroup = (groupIndexes) => {
+    const allSelected = groupIndexes.every(i => selectedIndexes.includes(i));
+    if (allSelected) {
+      setSelectedIndexes(prev => prev.filter(i => !groupIndexes.includes(i)));
     } else {
-      setSelectedIndexes(records.map((_, i) => i));
+      setSelectedIndexes(prev => [...new Set([...prev, ...groupIndexes])]);
     }
-    setSelectAll(!selectAll);
   };
 
   const downloadCSV = (recordsToExport, filename = "grading_records.csv") => {
@@ -79,7 +78,6 @@ export default function SavedRecords() {
     localStorage.setItem("gradingRecords", JSON.stringify(remaining));
     setRecords(remaining);
     setSelectedIndexes([]);
-    setSelectAll(false);
   };
 
   const openModal = (record, index) => {
@@ -134,12 +132,19 @@ export default function SavedRecords() {
         <button className="btn btn-danger" onClick={deleteSelected}>Delete Selected</button>
       </div>
 
-      {Object.entries(groupedRecords).map(([course, group]) => (
-        <div className="mb-5" key={course}>
-          <h4>{course}</h4>
-          {group.length === 0 ? (
-            <p className="text-muted">No records found.</p>
-          ) : (
+      {Object.entries(groupedRecords).map(([course, group]) => {
+        if (group.length === 0) return null;
+
+        const groupIndexes = group.map((r) =>
+          records.findIndex(
+            (x) => x.student.id === r.student.id && x.courseName === r.courseName
+          )
+        );
+        const selectedCount = groupIndexes.filter(i => selectedIndexes.includes(i)).length;
+
+        return (
+          <div className="mb-5" key={course}>
+            <h4>{course} <small className="text-muted">({selectedCount} selected)</small></h4>
             <div className="table-responsive">
               <table className="table table-bordered">
                 <thead>
@@ -147,8 +152,8 @@ export default function SavedRecords() {
                     <th>
                       <input
                         type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
+                        checked={groupIndexes.every(i => selectedIndexes.includes(i))}
+                        onChange={() => handleSelectAllGroup(groupIndexes)}
                       />
                     </th>
                     <th>Student Name</th>
@@ -189,9 +194,9 @@ export default function SavedRecords() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        );
+      })}
 
       {modalRecord && (
         <div className="modal d-block" tabIndex="-1" role="dialog" onClick={() => setModalRecord(null)}>
