@@ -28,30 +28,36 @@ export default function GradingForm({ courseName, categories }) {
     setComments({ ...comments, [category]: value });
   };
 
-  const handleClearAll = () => {
-  if (student.name && student.id) {
-    saveToLocalStorage();
-  }
-  setStudent({ name: "", id: "" });
-  setScores(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
-  setComments(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
-};
-
   const saveToLocalStorage = () => {
-  const record = {
-    student,
-    scores,
-    comments,
-    total,
-    date: new Date().toISOString(),
-    courseName,
+    if (!student.name || !student.id) {
+      alert("Please select a student and enter their ID.");
+      return;
+    }
+
+    const record = {
+      student,
+      scores,
+      comments,
+      total,
+      date: new Date().toISOString(),
+      courseName,
+    };
+
+    const existing = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
+    existing.push(record);
+    localStorage.setItem("gradingRecords", JSON.stringify(existing));
+
+    alert("Grading record saved!");
   };
 
-  const existing = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
-  existing.push(record);
-  localStorage.setItem("gradingRecords", JSON.stringify(existing));
-};
-
+  const handleClearAll = () => {
+    if (student.name && student.id) {
+      saveToLocalStorage();
+    }
+    setStudent({ name: "", id: "" });
+    setScores(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
+    setComments(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
+  };
 
   return (
     <div className="container my-4">
@@ -73,6 +79,9 @@ export default function GradingForm({ courseName, categories }) {
       <TotalScoreDisplay total={total} />
 
       <div className="d-flex justify-content-center gap-2 mb-3">
+        <button className="btn btn-success" onClick={saveToLocalStorage}>
+          Save Record
+        </button>
         <ExportButtons
           student={student}
           categories={categories}
