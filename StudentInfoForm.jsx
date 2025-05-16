@@ -92,26 +92,21 @@ const groupedStudentList = {
 };
 
 export default function StudentInfoForm({ student, setStudent }) {
-  const handleSelectChange = (e) => {
+  const handleCourseSelect = (e, courseKey) => {
     const name = e.target.value;
-    let matchedCourse = "";
-    let autoId = "";
+    if (!name) return;
 
-    // Determine course group and generate ID
-    for (const [course, names] of Object.entries(groupedStudentList)) {
-      const index = names.findIndex((n) => n === name);
-      if (index !== -1) {
-        matchedCourse = course;
-        autoId = `${course.split(" ")[0].toUpperCase()}${String(index + 1).padStart(3, "0")}`;
-        break;
-      }
-    }
+    const index = groupedStudentList[courseKey].findIndex(n => n === name);
+    const courseShort = courseKey.includes("Front") ? "Front" : courseKey.includes("HCI") ? "HCI" : "MIS";
+    const firstName = name.split(" ")[0]; // Or full name, depending on your preference
 
-    setStudent({ name, id: autoId, courseFromList: matchedCourse });
-  };
+    const id = `${firstName}-${courseShort}-${index + 1}`;
 
-  const handleIdChange = (e) => {
-    setStudent((prev) => ({ ...prev, id: e.target.value }));
+    setStudent({
+      name,
+      id,
+      courseFromList: courseKey
+    });
   };
 
   const handleClear = () => {
@@ -121,38 +116,35 @@ export default function StudentInfoForm({ student, setStudent }) {
   return (
     <div className="card mb-3">
       <div className="card-body">
-        <div className="mb-2">
-          <label className="form-label">Select Student Name</label>
-          <select
-            className="form-select mb-2"
-            value={student.name}
-            onChange={handleSelectChange}
-            required
-          >
-            <option value="">-- Select Student --</option>
-            {Object.entries(groupedStudentList).map(([group, names]) => (
-              <optgroup key={group} label={group}>
-                {names.map((name) => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+        <h5 className="card-title">Select Student by Course</h5>
 
-          <label className="form-label">Student ID</label>
-          <input
-            type="text"
-            className="form-control mb-2"
-            placeholder="Auto-filled or type manually"
-            value={student.id}
-            onChange={handleIdChange}
-            required
-          />
+        {Object.entries(groupedStudentList).map(([courseKey, names]) => (
+          <div key={courseKey} className="mb-3">
+            <label className="form-label">{courseKey}</label>
+            <select
+              className="form-select"
+              onChange={(e) => handleCourseSelect(e, courseKey)}
+              value={student.courseFromList === courseKey ? student.name : ""}
+            >
+              <option value="">-- Select Student --</option>
+              {names.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </div>
+        ))}
 
-          <button className="btn btn-warning w-100" onClick={handleClear}>
-            Clear Selection
-          </button>
-        </div>
+        <label className="form-label">Auto-Generated Student ID</label>
+        <input
+          type="text"
+          className="form-control mb-2"
+          value={student.id}
+          readOnly
+        />
+
+        <button className="btn btn-warning w-100" onClick={handleClear}>
+          Clear Selection
+        </button>
       </div>
     </div>
   );
