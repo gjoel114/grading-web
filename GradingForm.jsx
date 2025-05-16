@@ -5,7 +5,7 @@ import TotalScoreDisplay from "./TotalScoreDisplay";
 import ExportButtons from "./ExportButtons";
 
 export default function GradingForm({ courseName, categories }) {
-  const [student, setStudent] = useState({ name: "", id: "" });
+  const [student, setStudent] = useState({ name: "", id: "", courseFromList: "" });
   const [scores, setScores] = useState(
     categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {})
   );
@@ -20,8 +20,7 @@ export default function GradingForm({ courseName, categories }) {
   }, [scores]);
 
   const handleScoreChange = (category, value) => {
-    const numericValue = Number(value);
-    setScores({ ...scores, [category]: numericValue });
+    setScores({ ...scores, [category]: Number(value) });
   };
 
   const handleCommentChange = (category, value) => {
@@ -30,44 +29,48 @@ export default function GradingForm({ courseName, categories }) {
 
   const saveToLocalStorage = () => {
     if (!student.name || !student.id) {
-      alert("Please select a student and enter their ID.");
+      alert("Please select a student and ensure their ID is filled.");
       return;
     }
 
+    const courseKey = student.courseFromList || courseName;
+    const storageKey = `gradingRecords_${courseKey}`;
+
     const record = {
-      student,
+      student: {
+        name: student.name,
+        id: student.id
+      },
       scores,
       comments,
       total,
       date: new Date().toISOString(),
-      courseName,
+      courseName: courseKey
     };
 
-    const existing = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
+    const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
 
-    // Check for duplicate name in the same course (case-insensitive)
     const isDuplicate = existing.some(
       (r) =>
-        r.courseName === courseName &&
         r.student.name.trim().toLowerCase() === student.name.trim().toLowerCase()
     );
 
     if (isDuplicate) {
-      alert(`The student "${student.name}" already has a record in "${courseName}". Duplicate not saved.`);
+      alert(`The student "${student.name}" already has a record in "${courseKey}". Duplicate not saved.`);
       return;
     }
 
     existing.push(record);
-    localStorage.setItem("gradingRecords", JSON.stringify(existing));
+    localStorage.setItem(storageKey, JSON.stringify(existing));
 
-    alert("Grading record saved!");
+    alert(`Grading record saved in "${courseKey}" table.`);
   };
 
   const handleClearAll = () => {
     if (student.name && student.id) {
       saveToLocalStorage();
     }
-    setStudent({ name: "", id: "" });
+    setStudent({ name: "", id: "", courseFromList: "" });
     setScores(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
     setComments(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
   };
