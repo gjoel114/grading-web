@@ -61,7 +61,7 @@ function WelcomePage() {
   src="/grading-picture.png"
   alt="grading"
   className="mt-3"
-  style={{ width: "250px" }}
+  style={{width: "350px", height: "200px" }}
 />
 
     </div>
