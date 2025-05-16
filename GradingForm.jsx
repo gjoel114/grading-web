@@ -29,10 +29,29 @@ export default function GradingForm({ courseName, categories }) {
   };
 
   const handleClearAll = () => {
-    setStudent({ name: "", id: "" });
-    setScores(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
-    setComments(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
+  if (student.name && student.id) {
+    saveToLocalStorage();
+  }
+  setStudent({ name: "", id: "" });
+  setScores(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
+  setComments(categories.reduce((acc, cat) => ({ ...acc, [cat.name]: "" }), {}));
+};
+
+  const saveToLocalStorage = () => {
+  const record = {
+    student,
+    scores,
+    comments,
+    total,
+    date: new Date().toISOString(),
+    courseName,
   };
+
+  const existing = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
+  existing.push(record);
+  localStorage.setItem("gradingRecords", JSON.stringify(existing));
+};
+
 
   return (
     <div className="container my-4">
