@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SavedRecords() {
-  const records = JSON.parse(localStorage.getItem("gradingRecords") || "[]");
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("gradingRecords");
+    if (stored) {
+      try {
+        setRecords(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse gradingRecords:", e);
+      }
+    }
+  }, []);
 
   const downloadAll = () => {
+    if (records.length === 0) return;
+
     const csvRows = [
       ["Student Name", "Student ID", "Course", "Total", "Date"],
       ...records.map((r) => [
